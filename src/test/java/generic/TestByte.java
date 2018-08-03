@@ -11,10 +11,8 @@ public class TestByte {
         byte[] bytes = str.getBytes();
         System.out.println(bytes.length);
 
-
         str = new String(new byte[0]);
 
         System.out.println("str os byte:" + str);
-
     }
 }

@@ -1,36 +1,17 @@
-package top.cmoon.tools.excel;
+package top.cmoon.tools.excel.field;
 
 import java.lang.reflect.Field;
-import java.util.Date;
 import java.util.Optional;
 
 public class FieldInfo {
 
     private Field field;
 
-    private Class<?> fieldType;
+    //private Class<?> fieldType;
 
     private String readerType;
 
-
-    public boolean isString() {
-        return fieldType == String.class;
-    }
-
-    public boolean isNumber() {
-        return Number.class.isAssignableFrom(fieldType);
-    }
-
-    public boolean isDate() {
-        return fieldType == Date.class;
-    }
-
-
-    public boolean isBoolean() {
-        return fieldType == boolean.class || fieldType == Boolean.class;
-    }
-
-    public String getReaderType() {
+    String getReaderType() {
         return readerType;
     }
 
@@ -41,11 +22,13 @@ public class FieldInfo {
 
         this.field = field;
         this.field.setAccessible(true);
-        fieldType = field.getType();
+        // fieldType = field.getType();
+
+        readerType = FieldReaderUtil.getReaderKey(field);
     }
 
 
-    public Optional<Object> getVal(Object obj) {
+    Optional<Object> getVal(Object obj) {
 
         if (!field.isAccessible())
             field.setAccessible(true);

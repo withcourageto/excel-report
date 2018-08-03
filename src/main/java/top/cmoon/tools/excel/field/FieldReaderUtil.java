@@ -1,10 +1,30 @@
 package top.cmoon.tools.excel.field;
 
-import top.cmoon.tools.excel.FieldInfo;
-
+import java.lang.reflect.Field;
 import java.util.Date;
 
 final class FieldReaderUtil {
+
+
+    static String getReaderKey(Field field) {
+
+        Class<?> type = field.getType();
+
+        // TODO： use config file
+        if (type == String.class) {
+            return FieldReaderKey.STRING;
+        } else if (type == Date.class) {
+            return FieldReaderKey.DATE;
+        } else if (type == boolean.class || type == Boolean.class) {
+            return FieldReaderKey.BOOLEAN;
+        } else if (Number.class.isAssignableFrom(type)) {
+            return FieldReaderKey.NUMBER;
+        } else {
+            throw new RuntimeException("即将支持其他类型处理:" + type.getName());
+        }
+
+
+    }
 
 
     static String readStr(FieldInfo fieldInfo, Object obj) {

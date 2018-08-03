@@ -1,10 +1,10 @@
-package top.cmoon.tools.excel;
+package top.cmoon.tools.excel.titile;
 
 import top.cmoon.tools.excel.annotation.Title;
 
 import java.lang.reflect.Field;
 
-class TitleParserUtil {
+public class TitleParserUtil {
 
     /**
      * 从 field 中获取标题信息，
@@ -17,7 +17,7 @@ class TitleParserUtil {
      * @param field
      * @return
      */
-    static TitleCellDef parseField(Field field) {
+    public static TitleCellDef parseField(Field field) {
 
         Title title = field.getAnnotation(Title.class);
 

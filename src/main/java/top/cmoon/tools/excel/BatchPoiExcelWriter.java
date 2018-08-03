@@ -1,10 +1,13 @@
 package top.cmoon.tools.excel;
 
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import top.cmoon.tools.clazz.ClassUtil;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import top.cmoon.tools.clazz.ClassUtil;
+import top.cmoon.tools.excel.field.FieldInfo;
+import top.cmoon.tools.excel.titile.TitleCellDef;
+import top.cmoon.tools.excel.titile.TitleParserUtil;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -18,17 +21,17 @@ public class BatchPoiExcelWriter<T> implements WithProgressBarExcelWriter<T> {
 
     private Class<T> elementClass;
     private List<TitleCellDef> titleCellDefList;
-    private List<FieldInfo> fieldInfoList;
+    private volatile List<FieldInfo> fieldInfoList;
     private volatile boolean titleAdded;
 
-    // 用于记录进度
+    // proceed bar =  total == 0 ? 0 : proceed / total
     private final int total;
     private AtomicInteger proceed;
 
-    private DataCellWriter dataCellWriter;
+    private volatile DataCellWriter dataCellWriter;
 
     private SXSSFWorkbook wb;
-    private Sheet sheet;
+    private volatile Sheet sheet;
 
     // 记录 excel 已经写了多少行，之后的数据只能写在这些行之后
     private int currRow = 0;
@@ -54,6 +57,7 @@ public class BatchPoiExcelWriter<T> implements WithProgressBarExcelWriter<T> {
     }
 
     private void init() {
+        dataCellWriter = new DataCellWriterImpl();
         proceed = new AtomicInteger();
         titleCellDefList = ClassUtil.visitDeclaredFields(elementClass, TitleParserUtil::parseField);
     }
@@ -119,18 +123,29 @@ public class BatchPoiExcelWriter<T> implements WithProgressBarExcelWriter<T> {
         Row row;
         for (T data : dataList) {
             row = nextRow();
-
-            int cellIndex = 0;
-            for (FieldInfo field : fieldInfoList) {
-                dataCellWriter.write(row.createCell(cellIndex++), field, data);
-            }
-
-            proceed.incrementAndGet();
+            writeRow(row, data);
         }
+    }
+
+    private void writeRow(Row row, T data) {
+        int cellIndex = 0;
+        for (FieldInfo field : fieldInfoList) {
+            dataCellWriter.write(row.createCell(cellIndex++), field, data);
+        }
+
+        proceed.incrementAndGet();
     }
 
     private Row nextRow() {
         return sheet.createRow(currRow++);
+    }
+
+    private Row createRow(int rowNum) {
+        try {
+            return sheet.createRow(rowNum);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("row number is :" + rowNum, e);
+        }
     }
 
     public void close() {
@@ -151,7 +166,6 @@ public class BatchPoiExcelWriter<T> implements WithProgressBarExcelWriter<T> {
         }
 
     }
-
 
     @Override
     public int getTotal() {
