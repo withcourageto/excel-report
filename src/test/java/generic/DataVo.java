@@ -1,9 +1,13 @@
 package generic;
 
+import top.cmoon.tools.excel.annotation.DatePattern;
+import top.cmoon.tools.excel.annotation.ExportFields;
+import top.cmoon.tools.excel.annotation.NumberPattern;
 import top.cmoon.tools.excel.annotation.Title;
 
 import java.util.Date;
 
+@ExportFields
 public class DataVo {
 
     @Title("名称")
@@ -13,7 +17,12 @@ public class DataVo {
     private Integer age;
 
     @Title("生日")
+    @DatePattern
     private Date birthDay;
+
+    @Title("银行余额")
+    @NumberPattern(maxFractionDigits = 2)
+    private Double balance;
 
 
     public DataVo(String name, int age, Date birthDay) {
@@ -44,5 +53,13 @@ public class DataVo {
 
     public void setBirthDay(Date birthDay) {
         this.birthDay = birthDay;
+    }
+
+    public Double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(Double balance) {
+        this.balance = balance;
     }
 }

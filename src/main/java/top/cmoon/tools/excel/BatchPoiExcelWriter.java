@@ -140,14 +140,6 @@ public class BatchPoiExcelWriter<T> implements WithProgressBarExcelWriter<T> {
         return sheet.createRow(currRow++);
     }
 
-    private Row createRow(int rowNum) {
-        try {
-            return sheet.createRow(rowNum);
-        } catch (RuntimeException e) {
-            throw new RuntimeException("row number is :" + rowNum, e);
-        }
-    }
-
     public void close() {
         try {
             wb.close();
@@ -156,12 +148,13 @@ public class BatchPoiExcelWriter<T> implements WithProgressBarExcelWriter<T> {
         }
     }
 
-    protected final void close(Closeable... closeables) {
+    private void close(Closeable... closeables) {
 
         for (Closeable closeable : closeables) {
             try {
                 closeable.close();
             } catch (IOException e) {
+                // ignore
             }
         }
 

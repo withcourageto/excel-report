@@ -3,6 +3,7 @@ package generic;
 import org.junit.Test;
 import top.cmoon.tools.excel.BatchPoiExcelWriter;
 import top.cmoon.tools.excel.ExcelWriter;
+import top.cmoon.tools.excel.SimplePoiExcelWriter;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -11,21 +12,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 public class TestExcelWriter {
 
     @Test
     public void testWriter() throws IOException {
 
-        long start = System.currentTimeMillis();
-        ExcelWriter<DataVo> exporter = new BatchPoiExcelWriter<>(DataVo.class, 1000000);
+        ExcelWriter<DataVo> exporter = new SimplePoiExcelWriter<>(DataVo.class);
 
         int shift = 0;
-        for (int i = 0; i < 100; i++) {
-            exporter.write(genericData(shift, 10000));
-            shift += 10000;
-        }
 
+        List<DataVo> datas = genericData(shift, 10000);
+
+        long start = System.currentTimeMillis();
+        exporter.write(datas);
         long end = System.currentTimeMillis();
 
         System.out.println("写入耗时：" + (end - start));
@@ -39,19 +40,21 @@ public class TestExcelWriter {
 
     private List<DataVo> genericData(int start, int number) {
 
-        // simulate database query
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
+        long startTime = System.currentTimeMillis();
+
 
         List<DataVo> dataVos = new ArrayList<>(number);
 
         for (int i = 0; i < number; i++) {
-            dataVos.add(new DataVo("name" + (start + i), i % 50, new Date()));
+
+            DataVo vo = new DataVo("name" + (start + i), i % 50, new Date());
+            vo.setBalance(Math.random());
+            dataVos.add(vo);
         }
 
+        long end = System.currentTimeMillis();
+        System.out.println("生产数据耗时耗时：" + (end - startTime));
         return dataVos;
     }
 

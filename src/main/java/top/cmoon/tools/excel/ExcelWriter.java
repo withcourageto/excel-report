@@ -14,7 +14,7 @@ public interface ExcelWriter<T> extends Closeable {
      * 将 excel 写入指定输出流，并且关闭输入流和 excel writer
      *
      * @param outputStream 输出流，导出的目的地
-     * @throws IOException
+     * @throws IOException io error
      */
     void out(OutputStream outputStream) throws IOException;
 

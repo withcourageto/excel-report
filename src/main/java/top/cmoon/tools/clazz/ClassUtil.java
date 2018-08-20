@@ -5,6 +5,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -17,7 +18,7 @@ public final class ClassUtil {
         return clazz.getClassLoader() != null;
     }
 
-    public static <T> List<T> visitDeclaredFields(Class<?> clazz, Function<Field, T> visitor) {
+    public static <T> List<T> visitDeclaredFields(Class<?> clazz, BiFunction<Class<?>, Field, T> visitor) {
 
         if (clazz == null) {
             throw new NullPointerException();
@@ -30,7 +31,25 @@ public final class ClassUtil {
         List<Field> fields = getDeclaredPropertyFields(clazz);
         List<T> results = new ArrayList<>(fields.size());
         for (Field field : fields) {
-            results.add(visitor.apply(field));
+            results.add(visitor.apply(clazz, field));
+        }
+        return results;
+    }
+
+    public static <T> List<T> visitDeclaredFields(Class<?> clazz, BiFunction<Class<?>, List<Field>, List<Field>> filter, BiFunction<Class<?>, Field, T> visitor) {
+
+        if (clazz == null) {
+            throw new NullPointerException();
+        }
+
+        if (visitor == null) {
+            throw new NullPointerException();
+        }
+
+        List<Field> fields = filter.apply(clazz, getDeclaredPropertyFields(clazz));
+        List<T> results = new ArrayList<>(fields.size());
+        for (Field field : fields) {
+            results.add(visitor.apply(clazz, field));
         }
         return results;
     }
